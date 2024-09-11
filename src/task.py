@@ -1,27 +1,31 @@
+import multiprocessing
+
+
 class task:
     name = "default task"
-    dataset = {}  # 多组不同参数数据集
-    args = {}  # 多组不同算法参数
+    args = None
+    algo = None
     repeat = None
     output = None
 
-    def __init__(self, name):
+    def __init__(self, name, algo, repeat):
         self.name = name
+        self.algo = algo
+        self.repeat = repeat
 
     def run(self):
-        for arg in self.args:
-            for dataset in self.dataset:
-                res = None
-                self.output[dataset][arg] = res
+        n_cpu = multiprocessing.cpu_count()
+        with multiprocessing.Pool(processes=n_cpu) as pool:
+            self.output = pool.map(self._map_args, [self.args for _ in range(self.repeat)])
 
-    def get_arg_result(self, arg):
-        output_by_arg = {}
-        for dataset in self.output:
-            output_by_arg[dataset] = self.output[dataset][arg]
-        return output_by_arg
-
-    def get_dataset_result(self, dataset):
-        return self.output[dataset]
-
-    def get_all_result(self):
+    def get_result(self):
         return self.output
+
+    def _map_args(self, args):
+        return self.algo(**args)
+
+    def set_args(self, args):
+        self.args = args
+
+    def add_arg(self, arg_name, arg_value):
+        self.args[arg_name] = arg_value
