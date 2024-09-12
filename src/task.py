@@ -8,7 +8,7 @@ class task:
     repeat = None
     output = None
 
-    def __init__(self, name, algo, repeat):
+    def __init__(self, name: str, algo, repeat: int):
         self.name = name
         self.algo = algo
         self.repeat = repeat
@@ -18,14 +18,14 @@ class task:
         with multiprocessing.Pool(processes=n_cpu) as pool:
             self.output = pool.map(self._map_args, [self.args for _ in range(self.repeat)])
 
-    def get_result(self):
+    def get_task_result(self):
         return self.output
 
-    def _map_args(self, args):
+    def _map_args(self, args: dict):
         return self.algo(**args)
 
-    def set_args(self, args):
+    def set_args(self, args: dict):
         self.args = args
 
-    def add_arg(self, arg_name, arg_value):
+    def add_arg(self, arg_name: str, arg_value):
         self.args[arg_name] = arg_value
